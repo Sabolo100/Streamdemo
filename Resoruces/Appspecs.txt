@@ -1,0 +1,704 @@
+Build a simple but well-structured MVP web app for generating ONE home workout session at a time from a tagged fitness video library.
+
+IMPORTANT CONTEXT
+
+I am attaching two source files:
+1. streamfit_session_builder_spec.md
+2. streamfit_video_taxonomy_autotagged.xlsx
+
+These two files are the source of truth for the product logic and video metadata structure.
+
+You must read and use both files.
+
+PROJECT PURPOSE
+
+The app is for non-expert users.
+It generates a single workout session from a large video library of home fitness exercises.
+This is NOT a multi-week planner.
+This is NOT a calendar app.
+This is NOT a coach dashboard.
+This is NOT a content management system.
+
+It is a simple session-generation tool:
+- user provides workout needs and constraints
+- app generates one coherent workout session
+- session is assembled from the tagged video library
+- logic should be deterministic and rule-based
+- focus on home-safe, simple, understandable, clean experience
+
+PRODUCT PRINCIPLE
+
+The user should see:
+- INPUTS on the left
+- GENERATED WORKOUT on the right
+
+The user fills in a few parameters, presses Generate, and receives a structured workout session with ordered blocks:
+- Warm-up
+- Activation (optional)
+- Main block
+- Accessory / Core block
+- Finisher (optional)
+- Cooldown
+
+The generated session must feel logical and professionally structured.
+
+PRIMARY GOAL OF THE MVP
+
+Create a working one-screen MVP web app that:
+1. loads workout videos from a local data source derived from the attached taxonomy file
+2. lets the user input simple training preferences
+3. generates one session using deterministic session-building rules
+4. displays the result clearly and understandably
+5. prioritizes safe and simple home-appropriate exercise choices
+
+STACK
+
+Use a simple modern stack:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- local JSON data for the video library
+- no backend required for MVP
+- no database required for MVP
+- no auth
+- no admin panel
+
+If needed, first convert the XLSX file into a local JSON file that the app can consume.
+
+DO NOT OVER-ENGINEER
+
+Do not build:
+- authentication
+- admin
+- weekly plans
+- scheduling
+- payments
+- analytics dashboards
+- user profiles
+- AI chat
+- backend APIs unless absolutely necessary
+- video streaming integration unless trivial
+- persistence unless trivial
+
+This is an MVP for internal evaluation and demo purposes.
+
+UI / UX REQUIREMENTS
+
+Build a single-screen layout with two main vertical panels.
+
+LEFT SIDE = INPUT PANEL
+RIGHT SIDE = GENERATED SESSION
+
+LEFT PANEL FIELDS
+
+1. Primary goal
+Use dropdown or segmented control.
+Options:
+- general_fitness
+- strength
+- tone
+- fat_burn
+- conditioning
+- mobility
+- core
+- low_impact
+
+2. Duration
+Options:
+- 30 min
+- 45 min
+- 60 min
+
+3. Level
+Options:
+- beginner
+- lower_intermediate
+- intermediate
+- advanced
+
+4. Equipment available
+Multi-select:
+- bodyweight_only
+- dumbbell
+- kettlebell
+- band
+- trx
+- mixed_light_equipment
+
+5. Focus area
+Options:
+- full_body
+- lower_body
+- upper_body
+- core
+
+6. Impact tolerance
+Options:
+- low
+- medium
+- high
+
+7. Physical limitations
+Multi-select:
+- none
+- knee_sensitive
+- lower_back_sensitive
+- shoulder_sensitive
+- wrist_sensitive
+
+8. Energy today
+Options:
+- low
+- medium
+- high
+
+9. Optional style preference
+Options:
+- steady
+- interval
+- strength
+- flow
+
+10. Generate workout button
+
+11. Optional secondary button:
+- Regenerate session
+
+RIGHT PANEL OUTPUT
+
+Display:
+1. Session title
+2. Session summary
+3. Total estimated duration
+4. Goal / level / focus / style summary
+5. Safety notes if relevant
+6. Session blocks in order
+7. For each selected exercise/video:
+   - order number
+   - title
+   - key tags
+   - assigned session role
+   - prescription
+   - short reason it was selected
+
+The output must be easy to scan.
+
+VISUAL STYLE
+
+Keep the interface simple, clean, modern, and readable.
+This is an internal MVP, so visual polish matters less than clarity and functionality.
+Still, make it pleasant and well organized.
+
+DATA SOURCE REQUIREMENTS
+
+You must use the attached XLSX taxonomy file as the basis for the exercise library.
+If direct XLSX loading is awkward for runtime, convert it into JSON during setup or build time.
+
+Use the video taxonomy structure from the attached files.
+If some fields are inconsistent or missing, normalize them conservatively.
+
+IMPORTANT:
+The app should be structured so that replacing the local JSON with a larger final dataset later is easy.
+
+If needed, you can create a small development fallback dataset, but the real code structure must support the full imported taxonomy.
+
+SESSION BUILDER ENGINE
+
+The workout generator must be deterministic and rule-based.
+Do not use AI inference during runtime.
+Do not call any LLM APIs for session generation.
+Use transparent, debuggable utility functions.
+
+The generator should work like this:
+
+1. Read all available videos
+2. Filter out incompatible videos
+3. Choose a session template based on goal and duration
+4. Select candidates for each block
+5. Score candidates
+6. Build the session block by block
+7. Order the exercises logically
+8. Assign a simple prescription
+9. Render the result
+
+STRICT MVP LOGIC PRINCIPLE
+
+When uncertain, choose:
+- safer over more intense
+- simpler over more advanced
+- clearer over more clever
+- deterministic over “smart”
+- a coherent basic session over a flashy but unstable session
+
+SESSION TEMPLATES
+
+Use simple duration-based templates.
+
+30 MIN SESSION
+- Warm-up: 4–5 min
+- Activation: optional and short
+- Main block: 16–18 min
+- Accessory/Core: 4–5 min
+- Cooldown: 2–3 min
+
+45 MIN SESSION
+- Warm-up: 5–7 min
+- Activation: 3–5 min
+- Main block: 22–26 min
+- Accessory/Core: 6–8 min
+- Cooldown: 3–4 min
+
+60 MIN SESSION
+- Warm-up: 7–10 min
+- Activation: 3–5 min
+- Main block: 28–35 min
+- Accessory/Core or secondary block: 8–10 min
+- Cooldown: 4–5 min
+
+GOAL-BASED TEMPLATE LOGIC
+
+If goal = strength or tone:
+- Warm-up
+- Activation
+- Main strength block
+- Accessory/core
+- Optional short finisher if duration and level allow
+- Cooldown
+
+If goal = fat_burn or conditioning:
+- Warm-up
+- Progressive cardio-strength main block
+- Optional finisher
+- Cooldown
+
+If goal = mobility or low_impact:
+- Warm-up mobility
+- Controlled movement block
+- Light core/stability
+- Cooldown
+
+If goal = general_fitness:
+- Warm-up
+- Balanced full-body mixed main block
+- Accessory/core
+- Cooldown
+
+If goal = core:
+- Warm-up
+- Short activation
+- Core-centered main block
+- Secondary stability/full-body support block
+- Cooldown
+
+FILTERING RULES
+
+Before selecting any exercise, filter out incompatible videos.
+
+EXCLUDE VIDEOS THAT:
+- require unavailable equipment
+- exceed selected impact tolerance
+- conflict with selected physical limitations
+- are too complex for the selected level
+- clearly do not fit the chosen goal
+- are not safe enough for a home workout MVP
+- are too ambiguous if the metadata is weak
+
+Use conservative filtering.
+
+LEVEL RULES
+
+For beginner:
+- exclude complexity = complex
+- strongly prefer beginner-friendly videos
+- prefer low or medium impact
+- prefer simple bodyweight or single-tool exercises
+- avoid unstable or advanced combinations
+- minimize excessive floor-to-stand switching
+- avoid overly technical ballistic exercises
+
+For lower_intermediate:
+- allow moderate complexity
+- allow some stronger elements if other constraints fit
+
+For intermediate:
+- allow most moderate combinations
+- still respect safety and limitation filters
+
+For advanced:
+- allow the widest range
+- but still respect impact and physical limitation constraints
+
+IMPACT RULES
+
+If impact tolerance = low:
+- exclude high-impact videos
+- strongly prefer low impact
+- allow medium only when safe and logical
+
+If impact tolerance = medium:
+- allow low and medium freely
+- allow some high impact only when goal and level justify it
+
+If impact tolerance = high:
+- allow all impact levels except where physical limitations block them
+
+PHYSICAL LIMITATION RULES
+
+If knee_sensitive:
+- exclude or strongly downrank jump-heavy elements
+- exclude repeated landing patterns
+- downrank deep knee-dominant overload if alternatives exist
+
+If lower_back_sensitive:
+- exclude or strongly downrank risky ballistic hinges
+- exclude high-risk loaded hinge patterns unless clearly safe
+- prefer controlled, supported movement
+
+If shoulder_sensitive:
+- exclude or strongly downrank overhead pressing
+- exclude unstable shoulder-heavy moves
+- prefer neutral, controlled upper body options
+
+If wrist_sensitive:
+- exclude or strongly downrank long plank-loaded wrist work
+- exclude difficult push-up dominant wrist loading if alternatives exist
+
+FOCUS AREA RULES
+
+If focus_area = full_body:
+- session should cover more than one major region
+
+If focus_area = lower_body:
+- main block should prioritize lower-body patterns but still remain balanced enough to feel coherent
+
+If focus_area = upper_body:
+- main block should prioritize upper-body patterns with support work
+
+If focus_area = core:
+- core emphasis should be central, but session should still have structure and warm-up/cooldown
+
+BLOCK SELECTION RULES
+
+WARM-UP
+Select only videos that are suitable for:
+- warm-up
+- low intensity
+- low fatigue
+- low or manageable impact
+- preparation, not performance
+
+ACTIVATION
+Select only videos suitable for:
+- controlled activation
+- core / glute / scap prep
+- light neural preparation
+- non-fatiguing priming
+
+MAIN BLOCK
+Select videos that:
+- strongly match primary goal
+- fit focus area
+- are appropriate for level
+- fit equipment constraints
+- are safe enough for home use
+- represent the real training value of the session
+
+ACCESSORY / CORE BLOCK
+Select videos that:
+- complement the main block
+- support stability, core, unilateral control, smaller support patterns
+- are not too redundant with previous selections
+
+FINISHER
+Optional.
+Only include if:
+- duration allows it
+- goal supports it
+- level supports it
+- impact tolerance supports it
+- the selected exercises are simple and safe under fatigue
+
+COOLDOWN
+Select only videos that:
+- are cooldown compatible
+- are light mobility / stretch / breathing style
+- do not produce new fatigue
+
+ORDERING RULES
+
+The final session order must feel logical.
+
+Apply these rules:
+
+1. Warm-up is always first
+2. Cooldown is always last
+3. Technical or important work comes before simpler fatigue work
+4. Do not stack too many similar local stress patterns back-to-back
+5. Rotate patterns when possible:
+   - squat
+   - push
+   - hinge
+   - pull
+   - core
+6. Avoid early excessive core fatigue if later trunk stability is needed
+7. Avoid sudden high-impact spikes too early
+8. Finisher, if present, should use simple and repeatable exercises
+9. Avoid chaotic exercise flow
+10. Avoid excessive equipment switching
+11. Prefer one-tool or bodyweight-dominant combinations
+12. Avoid too many floor/standing transitions in beginner sessions
+
+EXAMPLES OF GOOD INTERNAL ORDER
+- squat
+- push
+- hinge
+- pull
+- core
+
+or
+- lower
+- upper
+- lower
+- upper
+- core
+
+EXAMPLES OF BAD ORDER
+For beginner:
+- lunge
+- jump lunge
+- squat pulse
+- wall sit
+- jump squat
+
+This overloads one local region with poor sequencing.
+
+SCORING SYSTEM
+
+Implement a readable weighted scoring system to rank candidate exercises.
+
+Use factors like:
+- goal match
+- focus area match
+- level compatibility
+- equipment compatibility
+- impact compatibility
+- physical limitation safety
+- session role fit
+- beginner friendliness
+- redundancy penalty
+- diversity bonus
+- pattern rotation bonus
+- home-safety bonus
+
+Do not use machine learning.
+Do not use black-box logic.
+Use readable TypeScript utility functions.
+
+PRESCRIPTION RULES
+
+For each selected video, assign a simple, human-readable training prescription.
+
+Supported output styles:
+- rep-based
+- time-based
+- hold-based
+
+Use simple heuristics.
+
+BEGINNER GENERAL FITNESS
+- 8–12 reps OR 30–40 sec
+- 20–30 sec rest
+- 2 rounds
+
+BEGINNER STRENGTH / TONE
+- 8–12 reps
+- 2–3 rounds
+- moderate rest
+
+LOWER INTERMEDIATE
+- 10–15 reps OR 40–45 sec
+- 15–25 sec rest
+- 2–3 rounds
+
+FAT BURN / CONDITIONING
+- 35–45 sec work
+- 15–20 sec rest
+- 2–4 rounds depending on duration
+
+CORE HOLDS
+- 20–40 sec
+- 2–3 rounds
+
+Do not overcomplicate.
+This is an MVP.
+Simple and believable is better than over-optimized.
+
+SESSION OUTPUT REQUIREMENTS
+
+The generated workout should include:
+
+1. A session name
+Example:
+- 45-Min Beginner Full Body Strength
+- 30-Min Low Impact Mobility Reset
+- 60-Min Intermediate Conditioning Circuit
+
+2. A short summary
+Example:
+“This session focuses on low-impact full-body strength with simple movement patterns and beginner-safe pacing.”
+
+3. Duration summary
+
+4. Safety notes if relevant
+Example:
+- “Low-impact selection applied.”
+- “Shoulder-sensitive filtering applied.”
+- “Beginner-safe session with simple movement flow.”
+
+5. Ordered workout blocks
+
+6. For each item:
+- exercise title
+- optional tags
+- prescription
+- why selected
+
+The “why selected” line can be short:
+- “Selected as a low-impact warm-up prep.”
+- “Chosen as a beginner-friendly lower-body main movement.”
+- “Used to balance pushing work with core stability.”
+
+TYPE DEFINITIONS
+
+Create clean TypeScript types for:
+- Goal
+- Level
+- Impact tolerance
+- Equipment
+- Focus area
+- Physical limitation
+- Session role
+- Video item
+- Session block
+- Generated session
+
+Use the attached taxonomy and normalize as needed.
+
+RECOMMENDED PROJECT STRUCTURE
+
+Use something like this:
+
+/app
+  /page.tsx
+
+/components
+  InputPanel.tsx
+  OutputPanel.tsx
+  SessionBlock.tsx
+  ExerciseCard.tsx
+  SummaryCard.tsx
+
+/lib
+  sessionBuilder.ts
+  filters.ts
+  scoring.ts
+  templates.ts
+  ordering.ts
+  prescriptions.ts
+  taxonomy.ts
+  importVideos.ts
+
+/data
+  videos.json
+
+/types
+  workout.ts
+
+If you need a small parser or normalization script for XLSX -> JSON, include it in a sensible place.
+
+IMPLEMENTATION REQUIREMENTS
+
+1. Build the session engine as pure functions where possible
+2. Keep all logic modular and readable
+3. Add comments explaining important rule decisions
+4. Use the attached files as the base truth
+5. Normalize taxonomy carefully
+6. Make future expansion easy
+7. Prefer debuggable logic over clever abstractions
+
+MVP NICE-TO-HAVES
+
+If easy to implement, add:
+- Regenerate session button
+- Exclude this exercise and rebuild
+- Show/hide why this was selected
+- Copy session to clipboard
+
+These are optional.
+Do not let them delay the core functionality.
+
+NOT REQUIRED
+
+Do NOT build:
+- auth
+- database
+- saved user profiles
+- weekly plans
+- calendar
+- push notifications
+- payments
+- admin tools
+- CMS
+- AI chat
+- backend complexity
+
+ROBUSTNESS RULE
+
+If the candidate pool is too weak after filtering:
+- return a simpler, safer session
+- do not force bad exercise choices
+- optionally show a note that the current constraints limited the available pool
+
+EXAMPLE USER FLOW
+
+1. User opens page
+2. On left side, selects:
+   - goal
+   - duration
+   - level
+   - equipment
+   - focus area
+   - impact tolerance
+   - limitations
+   - energy level
+   - style preference
+3. Clicks Generate Workout
+4. On right side, sees one structured session
+5. Optionally clicks Regenerate
+
+CODING PRIORITIES
+
+Priority order:
+1. Correct rule-based session generation
+2. Safety and conservative filtering
+3. Clean one-screen UX
+4. Clean TypeScript structure
+5. Easy future extension
+
+FINAL EXPECTED DELIVERABLE
+
+Produce a working Next.js MVP that:
+- runs locally
+- uses the attached specification and taxonomy
+- converts or loads the exercise taxonomy into a usable local data format
+- generates a single structured workout session
+- shows inputs on the left and the generated workout on the right
+- uses clear, modular rule-based logic
+- is simple, readable, and easy to extend later
+
+IMPORTANT FINAL INSTRUCTION
+
+Use the attached streamfit_session_builder_spec.md and streamfit_video_taxonomy_autotagged.xlsx as the foundation.
+If they disagree slightly, prefer the intent of the session-builder specification and use the taxonomy file as the actual video source dataset.
+Normalize conservatively.
+Keep the MVP simple, safe, and coherent.

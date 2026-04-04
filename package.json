@@ -1,0 +1,26 @@
+{
+  "name": "streamfit-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "taxonomy:bootstrap": "python scripts/import_videos.py",
+    "taxonomy:build": "python scripts/build_runtime_from_ssot.py",
+    "import:videos": "python scripts/ensure_taxonomy_seed.py && npm run taxonomy:build"
+  },
+  "dependencies": {
+    "next": "^16.2.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2"
+  }
+}

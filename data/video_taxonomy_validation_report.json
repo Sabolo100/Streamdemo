@@ -1,0 +1,7 @@
+{
+  "source_of_truth": "C:\\Users\\szbud\\Codex Apps\\StreamfitDemo\\data\\video_taxonomy_ssot.csv",
+  "canonical_json": "C:\\Users\\szbud\\Codex Apps\\StreamfitDemo\\data\\video_taxonomy_ssot.json",
+  "row_count": 1872,
+  "validation_error_count": 0,
+  "validation_errors": {}
+}
