@@ -22,11 +22,9 @@ export interface ExerciseFocusZone {
 }
 
 export interface ExerciseFocusProfile {
-  title: string;
   summary: string;
   frontZones: ExerciseFocusZone[];
   backZones: ExerciseFocusZone[];
-  legendZones: ExerciseFocusZone[];
 }
 
 const FRONT_ZONE_ORDER: AnatomyZone[] = [
@@ -83,11 +81,6 @@ const LABELS: Record<AppLanguage, Record<AnatomyZone, string>> = {
   },
 };
 
-const PANEL_TITLES: Record<AppLanguage, string> = {
-  en: "Body Focus",
-  hu: "Testfókusz",
-};
-
 const VIEW_LABELS: Record<AppLanguage, Record<AnatomyView, string>> = {
   en: { front: "Front", back: "Back" },
   hu: { front: "Elöl", back: "Hátul" },
@@ -120,11 +113,9 @@ export function getExerciseFocusProfile(
   if (ranked.length === 0) {
     const fallback = buildZone(language, "core_front", "front", 1, 1);
     return {
-      title: PANEL_TITLES[language],
       summary: fallback.label,
       frontZones: [fallback],
       backZones: [],
-      legendZones: [fallback],
     };
   }
 
@@ -140,14 +131,12 @@ export function getExerciseFocusProfile(
   );
 
   return {
-    title: PANEL_TITLES[language],
     summary: normalized
       .slice(0, 3)
       .map((entry) => entry.label)
-      .join(language === "hu" ? " • " : " • "),
+      .join(" • "),
     frontZones: normalized.filter((entry) => entry.view === "front"),
     backZones: normalized.filter((entry) => entry.view === "back"),
-    legendZones: normalized.slice(0, 3),
   };
 }
 

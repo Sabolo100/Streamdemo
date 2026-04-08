@@ -8,6 +8,7 @@
     "start": "next start",
     "taxonomy:bootstrap": "python scripts/import_videos.py",
     "taxonomy:build": "python scripts/build_runtime_from_ssot.py",
+    "taxonomy:audit": "python scripts/audit_builder_taxonomy.py",
     "import:videos": "python scripts/ensure_taxonomy_seed.py && npm run taxonomy:build"
   },
   "dependencies": {

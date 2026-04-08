@@ -1,0 +1,371 @@
+{
+  "source_of_truth": "C:\\Users\\szbud\\Codex Apps\\StreamfitDemo\\data\\video_taxonomy_ssot.csv",
+  "row_count": 1872,
+  "content_kind_counts": {
+    "exercise": 1865,
+    "tutorial": 7
+  },
+  "asset_kind_counts": {
+    "exercise_single": 1872
+  },
+  "builder_status_counts": {
+    "include": 1241,
+    "manual_review": 624,
+    "exclude": 7
+  },
+  "preferred_format_counts": {
+    "reps": 1524,
+    "time": 135,
+    "hold": 213
+  },
+  "balance_bucket_counts": {
+    "upper_pull": 259,
+    "trunk": 210,
+    "upper_push": 171,
+    "total_body": 490,
+    "lower_knee": 570,
+    "lower_hip": 139,
+    "mobility_recovery": 33
+  },
+  "movement_family_counts": {
+    "upper_pull_horizontal": 218,
+    "core_flexion": 53,
+    "upper_push_horizontal": 104,
+    "mixed_other": 346,
+    "upper_pull_vertical": 37,
+    "squat_supported": 6,
+    "lunge_forward_reverse": 202,
+    "jump_plyometric": 23,
+    "core_anti_extension": 63,
+    "squat_bilateral": 156,
+    "low_impact_conditioning": 18,
+    "core_anti_lateral_flexion": 29,
+    "hinge_single_leg": 19,
+    "hip_mobility": 17,
+    "lunge_lateral": 4,
+    "upper_push_vertical": 67,
+    "hamstring_curl": 11,
+    "hinge_bilateral": 77,
+    "glute_bridge": 32,
+    "scapular_control": 4,
+    "split_squat": 74,
+    "carry_hold": 54,
+    "step_up": 128,
+    "core_anti_rotation": 3,
+    "ankle_mobility": 6,
+    "shoulder_mobility": 3,
+    "ballistic_power": 103,
+    "tspine_mobility": 6,
+    "cross_crawl_pattern": 8,
+    "breathing_reset": 1
+  },
+  "contraction_style_counts": {
+    "dynamic_reps": 1369,
+    "cyclical_endurance": 87,
+    "isometric_hold": 213,
+    "ballistic": 170,
+    "controlled_mobility": 33
+  },
+  "movement_class_counts": {
+    "compound": 1008,
+    "accessory": 502,
+    "power": 126,
+    "isolation": 185,
+    "conditioning": 18,
+    "mobility": 32,
+    "recovery": 1
+  },
+  "variation_tier_counts": {
+    "standard": 759,
+    "specialist": 420,
+    "progression": 684,
+    "regression": 9
+  },
+  "prescription_profile_counts": {
+    "compound_strength": 1008,
+    "core_control": 206,
+    "accessory_volume": 296,
+    "power_output": 126,
+    "isolation_volume": 185,
+    "conditioning_interval": 18,
+    "mobility_prep": 32,
+    "recovery_reset": 1
+  },
+  "environment_access_counts": {
+    "home_open": 1268,
+    "commercial_gym_preferred": 178,
+    "bench_or_box_needed": 208,
+    "hanging_rig_needed": 61,
+    "wall_needed": 14,
+    "anchor_or_rig_needed": 132,
+    "band_anchor_needed": 11
+  },
+  "slot_detail_counts": {
+    "accessory_strength": 1225,
+    "main_strength": 1066,
+    "activation_core": 206,
+    "power": 126,
+    "conditioning": 48,
+    "warmup_mobility": 34,
+    "skill": 137,
+    "activation_glute": 32,
+    "activation_scapula": 13,
+    "cooldown_mobility": 6,
+    "cooldown_breathing": 1,
+    "cooldown_downregulation": 1
+  },
+  "technical_gate_counts": {
+    "standard": 1402,
+    "complex_skill": 159,
+    "hanging": 61,
+    "inversion": 9,
+    "ballistic": 170,
+    "overhead": 206
+  },
+  "role_counts": {
+    "accessory": 1395,
+    "main": 1210,
+    "activation": 251,
+    "finisher": 174,
+    "warmup": 34,
+    "cooldown": 7
+  },
+  "builder_tag_counts": {
+    "accessory_upper": 426,
+    "pull_pattern": 257,
+    "strength_upper_pull": 257,
+    "accessory_core": 210,
+    "activation_core": 206,
+    "strength_core": 210,
+    "push_pattern": 169,
+    "strength_upper_push": 169,
+    "accessory_lower": 706,
+    "squat_pattern": 161,
+    "strength_lower_squat": 161,
+    "lunge_pattern": 407,
+    "strength_lower_lunge": 407,
+    "hinge_pattern": 138,
+    "strength_lower_hinge": 138,
+    "prep_lower": 23,
+    "activation_lower": 32,
+    "activation_upper": 13,
+    "scapular_control": 13,
+    "anti_rotation": 3,
+    "mobility_hips": 9,
+    "prep_upper": 9,
+    "prep_core": 2,
+    "recovery_lower": 3,
+    "recovery_breathing": 1,
+    "recovery_core": 1,
+    "mobility_thoracic": 3,
+    "recovery_upper": 3
+  },
+  "coverage_summary": {
+    "prep_upper": 9,
+    "prep_lower": 23,
+    "prep_core": 2,
+    "activation_upper": 13,
+    "activation_lower": 32,
+    "activation_core": 206,
+    "strength_upper_push": 169,
+    "strength_upper_pull": 257,
+    "strength_lower_squat": 161,
+    "strength_lower_hinge": 138,
+    "strength_lower_lunge": 407,
+    "strength_core": 210,
+    "recovery_breathing": 1,
+    "scapular_control": 13,
+    "anti_rotation": 3,
+    "main_strength": 1066,
+    "conditioning": 48,
+    "power": 126,
+    "upper_push_bucket": 171,
+    "upper_pull_bucket": 259,
+    "trunk_bucket": 210,
+    "compound_count": 1008,
+    "accessory_count": 502,
+    "isolation_count": 185,
+    "standard_variations": 759,
+    "regression_variations": 9
+  },
+  "suspicious_samples": {
+    "tutorial_like_main": [
+      {
+        "id": 1883,
+        "title_original": "Squat - Guggolás oktató videó",
+        "english_title": "Squat",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "squat",
+        "source_body_region": "lower_body",
+        "body_region": "lower_body",
+        "movement_family_detailed": "squat_bilateral",
+        "movement_class": "compound",
+        "variation_tier": "standard",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "lower_knee",
+        "slot_details": [
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      },
+      {
+        "id": 1887,
+        "title_original": "Row - Evezés oktató videó",
+        "english_title": "Row",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "pull",
+        "source_body_region": "upper_body",
+        "body_region": "upper_body",
+        "movement_family_detailed": "upper_pull_horizontal",
+        "movement_class": "compound",
+        "variation_tier": "standard",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "upper_pull",
+        "slot_details": [
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      },
+      {
+        "id": 1889,
+        "title_original": "Push up - Fekvőtámasz oktató videó",
+        "english_title": "Push up",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "push",
+        "source_body_region": "upper_body",
+        "body_region": "upper_body",
+        "movement_family_detailed": "upper_push_horizontal",
+        "movement_class": "compound",
+        "variation_tier": "standard",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "upper_push",
+        "slot_details": [
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      },
+      {
+        "id": 1890,
+        "title_original": "Pull up - Húzódzkodás oktató video",
+        "english_title": "Pull up",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "pull",
+        "source_body_region": "upper_body",
+        "body_region": "upper_body",
+        "movement_family_detailed": "upper_pull_vertical",
+        "movement_class": "compound",
+        "variation_tier": "specialist",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "upper_pull",
+        "slot_details": [
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      },
+      {
+        "id": 1893,
+        "title_original": "Overhead press - Fej fölé nyomás oktató videó",
+        "english_title": "Overhead press",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "push",
+        "source_body_region": "upper_body",
+        "body_region": "upper_body",
+        "movement_family_detailed": "upper_push_vertical",
+        "movement_class": "compound",
+        "variation_tier": "progression",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "upper_push",
+        "slot_details": [
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      },
+      {
+        "id": 1894,
+        "title_original": "Lunge - Kitörés oktató videó",
+        "english_title": "Lunge",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "lunge",
+        "source_body_region": "lower_body",
+        "body_region": "lower_body",
+        "movement_family_detailed": "lunge_forward_reverse",
+        "movement_class": "compound",
+        "variation_tier": "progression",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "lower_knee",
+        "slot_details": [
+          "accessory_strength",
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "accessory",
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      },
+      {
+        "id": 1900,
+        "title_original": "Deadlift - Felhúzás oktató videó",
+        "english_title": "Deadlift",
+        "content_kind": "tutorial",
+        "asset_kind": "exercise_single",
+        "builder_status": "exclude",
+        "primary_pattern": "hinge",
+        "source_body_region": "lower_body",
+        "body_region": "lower_body",
+        "movement_family_detailed": "hinge_bilateral",
+        "movement_class": "compound",
+        "variation_tier": "standard",
+        "prescription_profile": "compound_strength",
+        "balance_bucket": "lower_hip",
+        "slot_details": [
+          "main_strength"
+        ],
+        "session_role_fit": [
+          "main"
+        ],
+        "builder_tags": [],
+        "validation_errors": []
+      }
+    ],
+    "include_non_single_assets": [],
+    "warmup_without_prep": [],
+    "activation_without_slot": [],
+    "upper_main_without_push_pull": [],
+    "isolation_marked_main": [],
+    "specialist_marked_include": []
+  }
+}

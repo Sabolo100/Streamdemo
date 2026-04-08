@@ -44,6 +44,8 @@ interface UiCopy {
   stylePreference: string;
   simpleMode: string;
   simpleModeHelper: string;
+  bodyFocusCard: string;
+  bodyFocusCardHelper: string;
   generateWorkout: string;
   building: string;
   regenerateSession: string;
@@ -51,11 +53,15 @@ interface UiCopy {
   single: string;
   multi: string;
   generatedSession: string;
+  generatedAt: string;
+  noSessionTitle: string;
+  noSessionDescription: string;
   hideWhySelected: string;
   showWhySelected: string;
   copied: string;
   copyFailed: string;
   copySession: string;
+  cumulativeTime: string;
   profile: string;
   style: string;
   equipment: string;
@@ -330,6 +336,8 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
     stylePreference: "Style preference",
     simpleMode: "Simple mode",
     simpleModeHelper: "Fewer transitions, fewer exercises, cleaner beginner flow.",
+    bodyFocusCard: "Body focus card",
+    bodyFocusCardHelper: "Show or hide the exercise-level front/back body focus preview.",
     generateWorkout: "Generate workout",
     building: "Building...",
     regenerateSession: "Regenerate session",
@@ -338,11 +346,16 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
     single: "Single",
     multi: "Multi",
     generatedSession: "Generated Session",
+    generatedAt: "Generated at",
+    noSessionTitle: "No training plan yet",
+    noSessionDescription:
+      "Set the inputs above, then generate a workout. The plan will appear here after the first generation.",
     hideWhySelected: "Hide why selected",
     showWhySelected: "Show why selected",
     copied: "Copied",
     copyFailed: "Copy failed",
     copySession: "Copy session",
+    cumulativeTime: "Cumulative time",
     profile: "Profile",
     style: "Style",
     equipment: "Equipment",
@@ -352,7 +365,7 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
     pattern: "Pattern",
     impact: "Impact",
     openSourceVideo: "Open source video",
-    excludeAndRebuild: "Exclude and rebuild",
+    excludeAndRebuild: "Exclude from next generation",
   },
   hu: {
     appKicker: "Streamfit MVP",
@@ -378,6 +391,8 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
     stylePreference: "St\u00edluspreferencia",
     simpleMode: "Egyszer\u0171 m\u00f3d",
     simpleModeHelper: "Kevesebb \u00e1tmenet, kevesebb gyakorlat, tiszt\u00e1bb kezd\u0151 flow.",
+    bodyFocusCard: "Testf\u00f3kusz k\u00e1rtya",
+    bodyFocusCardHelper: "Feladatonk\u00e9nt jelenjen meg vagy rejt\u0151zz\u00f6n el az el\u00f6l/h\u00e1tul testf\u00f3kusz n\u00e9zet.",
     generateWorkout: "Edz\u00e9s gener\u00e1l\u00e1sa",
     building: "\u00c9p\u00edtj\u00fck...",
     regenerateSession: "\u00dajragener\u00e1l\u00e1s",
@@ -385,11 +400,16 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
     single: "Egy",
     multi: "T\u00f6bb",
     generatedSession: "Gener\u00e1lt session",
+    generatedAt: "Gener\u00e1l\u00e1s id\u0151pontja",
+    noSessionTitle: "M\u00e9g nincs edz\u00e9sterv",
+    noSessionDescription:
+      "\u00c1ll\u00edtsd be fent a param\u00e9tereket, majd gener\u00e1lj edz\u00e9st. Az els\u0151 gener\u00e1l\u00e1s ut\u00e1n itt jelenik meg a terv.",
     hideWhySelected: "Indokl\u00e1s elrejt\u00e9se",
     showWhySelected: "Indokl\u00e1s megjelen\u00edt\u00e9se",
     copied: "M\u00e1solva",
     copyFailed: "M\u00e1sol\u00e1s sikertelen",
     copySession: "Session m\u00e1sol\u00e1sa",
+    cumulativeTime: "Kumul\u00e1lt id\u0151",
     profile: "Profil",
     style: "St\u00edlus",
     equipment: "Eszk\u00f6z\u00f6k",
@@ -399,7 +419,7 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
     pattern: "Minta",
     impact: "Terhel\u00e9s",
     openSourceVideo: "Forr\u00e1svide\u00f3 megnyit\u00e1sa",
-    excludeAndRebuild: "Kiz\u00e1r\u00e1s \u00e9s \u00fajra\u00e9p\u00edt\u00e9s",
+    excludeAndRebuild: "Kiz\u00e1r\u00e1s a k\u00f6vetkez\u0151 gener\u00e1l\u00e1sb\u00f3l",
   },
 };
 
@@ -408,6 +428,34 @@ export const DEFAULT_LANGUAGE: AppLanguage = "en";
 
 export function getUiCopy(language: AppLanguage): UiCopy {
   return UI_COPY[language];
+}
+
+export function formatElapsedClockLocalized(
+  language: AppLanguage,
+  totalSeconds: number,
+): string {
+  const normalizedSeconds = Math.max(0, Math.round(totalSeconds));
+  const minutes = Math.floor(normalizedSeconds / 60);
+  const seconds = normalizedSeconds % 60;
+  const paddedSeconds = seconds.toString().padStart(2, "0");
+
+  if (language === "hu") {
+    return `${minutes}:${paddedSeconds}`;
+  }
+
+  return `${minutes}:${paddedSeconds}`;
+}
+
+export function formatGeneratedAtLocalized(
+  language: AppLanguage,
+  generatedAtIso: string,
+): string {
+  const date = new Date(generatedAtIso);
+
+  return new Intl.DateTimeFormat(language === "hu" ? "hu-HU" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 
 export function getLanguageLabel(language: AppLanguage): string {

@@ -19,12 +19,9 @@ export default function BodyFocusSilhouette({
 }: BodyFocusSilhouetteProps) {
   return (
     <div className="w-full max-w-[240px] rounded-[16px] border border-[rgba(23,33,30,0.08)] bg-[rgba(255,255,255,0.74)] p-3">
-      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.22em] text-[#c34d23]">
-        {profile.title}
-      </p>
-      <p className="mt-1 text-xs leading-5 text-[#5a655f]">{profile.summary}</p>
+      <p className="text-xs leading-5 text-[#5a655f]">{profile.summary}</p>
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-2.5 grid grid-cols-2 gap-2">
         <SilhouetteView
           label={getViewLabel(language, "front")}
           zones={profile.frontZones}
@@ -35,17 +32,6 @@ export default function BodyFocusSilhouette({
           zones={profile.backZones}
           view="back"
         />
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {profile.legendZones.map((zone) => (
-          <span
-            className="rounded-full border border-[rgba(216,111,69,0.16)] bg-[rgba(216,111,69,0.1)] px-2 py-1 text-[0.7rem] font-semibold text-[#a84724]"
-            key={`${zone.view}-${zone.zone}`}
-          >
-            {zone.label}
-          </span>
-        ))}
       </div>
     </div>
   );

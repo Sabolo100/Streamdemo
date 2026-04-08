@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import InputPanel from "@/components/InputPanel";
 import OutputPanel from "@/components/OutputPanel";
 import {
@@ -8,6 +8,7 @@ import {
   formatDurationLocalized,
   getUiCopy,
   getVideoTitle,
+  formatGeneratedAtLocalized,
 } from "@/lib/i18n";
 import { buildWorkoutSession } from "@/lib/sessionBuilder";
 import { DEFAULT_INPUTS } from "@/lib/taxonomy";
@@ -28,12 +29,32 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
   const [variationSeed, setVariationSeed] = useState(0);
   const [excludedVideoIds, setExcludedVideoIds] = useState<number[]>([]);
   const [showReasons, setShowReasons] = useState(true);
+  const [showBodyFocus, setShowBodyFocus] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
-  const [session, setSession] = useState<GeneratedSession>(() =>
-    buildWorkoutSession(DEFAULT_INPUTS, videos, { language: DEFAULT_LANGUAGE }),
-  );
+  const [session, setSession] = useState<GeneratedSession | null>(null);
+  const generationTimeoutRef = useRef<number | null>(null);
   const copy = getUiCopy(language);
+
+  useEffect(() => {
+    if (copyState === "idle") {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCopyState("idle");
+    }, 2200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [copyState]);
+
+  useEffect(() => {
+    return () => {
+      if (generationTimeoutRef.current !== null) {
+        window.clearTimeout(generationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   function generate(
     nextInputs: WorkoutInputs,
@@ -41,19 +62,28 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
     excludedIds: number[],
     nextLanguage: AppLanguage,
   ) {
+    setCopyState("idle");
     setIsGenerating(true);
 
-    startTransition(() => {
-      setSession(
-        buildWorkoutSession(nextInputs, videos, {
-          variationSeed: seed,
-          excludedVideoIds: excludedIds,
-          language: nextLanguage,
-        }),
-      );
-      setVariationSeed(seed);
-      setIsGenerating(false);
-    });
+    if (generationTimeoutRef.current !== null) {
+      window.clearTimeout(generationTimeoutRef.current);
+    }
+
+    generationTimeoutRef.current = window.setTimeout(() => {
+      const nextSession = buildWorkoutSession(nextInputs, videos, {
+        variationSeed: seed,
+        excludedVideoIds: excludedIds,
+        language: nextLanguage,
+      });
+
+      startTransition(() => {
+        setSession(nextSession);
+        setVariationSeed(seed);
+        setIsGenerating(false);
+      });
+
+      generationTimeoutRef.current = null;
+    }, 35);
   }
 
   function handleGenerate() {
@@ -63,28 +93,38 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
   }
 
   function handleRegenerate() {
+    if (!session) {
+      handleGenerate();
+      return;
+    }
+
     generate(inputs, variationSeed + 1, excludedVideoIds, language);
   }
 
   function handleExclude(videoId: number) {
     const nextExcludedIds = [...excludedVideoIds, videoId];
     setExcludedVideoIds(nextExcludedIds);
-    generate(inputs, variationSeed + 1, nextExcludedIds, language);
+    setCopyState("idle");
   }
 
   function handleClearExclusions() {
     const nextExcludedIds: number[] = [];
     setExcludedVideoIds(nextExcludedIds);
-    generate(inputs, variationSeed + 1, nextExcludedIds, language);
+    setCopyState("idle");
   }
 
   function handleLanguageChange(nextLanguage: AppLanguage) {
     setLanguage(nextLanguage);
-    generate(inputs, variationSeed, excludedVideoIds, nextLanguage);
+    setCopyState("idle");
   }
 
   async function handleCopy() {
+    if (!session) {
+      return;
+    }
+
     const text = serializeSession(session, language);
+    setCopyState("idle");
 
     try {
       await navigator.clipboard.writeText(text);
@@ -117,6 +157,7 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
         <div className="grid gap-4 p-4 lg:gap-5 lg:p-5">
           <InputPanel
             excludedCount={excludedVideoIds.length}
+            hasSession={Boolean(session)}
             inputs={inputs}
             isGenerating={isGenerating}
             language={language}
@@ -125,6 +166,8 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
             onGenerate={handleGenerate}
             onLanguageChange={handleLanguageChange}
             onRegenerate={handleRegenerate}
+            onToggleBodyFocus={() => setShowBodyFocus((value) => !value)}
+            showBodyFocus={showBodyFocus}
           />
 
           <OutputPanel
@@ -134,6 +177,7 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
             onExcludeExercise={handleExclude}
             onToggleReasons={() => setShowReasons((value) => !value)}
             session={session}
+            showBodyFocus={showBodyFocus}
             showReasons={showReasons}
           />
         </div>
@@ -149,6 +193,7 @@ function serializeSession(
   const copy = getUiCopy(language);
   const lines: string[] = [];
   lines.push(session.title);
+  lines.push(`${copy.generatedAt}: ${formatGeneratedAtLocalized(language, session.generatedAtIso)}`);
   lines.push(session.summaryText);
   lines.push("");
 

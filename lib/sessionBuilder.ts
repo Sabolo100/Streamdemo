@@ -7,12 +7,13 @@ import {
   getLevelLabel,
 } from "@/lib/i18n";
 import { orderBlockExercises } from "@/lib/ordering";
-import { createPrescription } from "@/lib/prescriptions";
+import { createBlockPrescriptions } from "@/lib/prescriptions";
 import { scoreVideo } from "@/lib/scoring";
 import { getSessionTemplate } from "@/lib/templates";
 import type {
   AppLanguage,
   BlockTemplate,
+  BuilderTag,
   BuildSessionOptions,
   GeneratedSession,
   IntensityEstimate,
@@ -21,6 +22,9 @@ import type {
   VideoItem,
   WorkoutInputs,
 } from "@/types/workout";
+
+const UPPER_PUSH_TAGS: BuilderTag[] = ["strength_upper_push", "push_pattern"];
+const UPPER_PULL_TAGS: BuilderTag[] = ["strength_upper_pull", "pull_pattern"];
 
 export function buildWorkoutSession(
   inputs: WorkoutInputs,
@@ -31,9 +35,11 @@ export function buildWorkoutSession(
   const language = options.language ?? "en";
   const filterResult = buildCandidatePool(videos, inputs, options.excludedVideoIds);
   const template = getSessionTemplate(inputs, language);
-
   const sessionSelections: SelectedExercise[] = [];
-  const blocks = template.flatMap((block) => {
+  const builtBlocks = new Map<BlockTemplate["role"], SelectedExercise[]>();
+  const orderedTemplate = getSelectionOrder(template);
+
+  for (const block of orderedTemplate) {
     const items = buildBlock(
       block,
       filterResult.candidates,
@@ -44,29 +50,45 @@ export function buildWorkoutSession(
     );
 
     if (items.length === 0 && block.optional) {
-      return [];
+      continue;
     }
 
+    builtBlocks.set(block.role, items);
     sessionSelections.push(...items);
-    return [
-      {
-        role: block.role,
-        label: block.label,
-        targetMinutes: block.targetMinutes,
-        items,
-      },
-    ];
-  });
+  }
+
+  const blocks = renumberBlocks(
+    template.flatMap((block) => {
+      const items = builtBlocks.get(block.role) ?? [];
+      if (items.length === 0 && block.optional) {
+        return [];
+      }
+
+      return [
+        {
+          role: block.role,
+          label: block.label,
+          targetMinutes: block.targetMinutes,
+          items,
+        },
+      ];
+    }),
+  );
+  const flattenedSelections = blocks.flatMap((block) => block.items);
 
   const summary = {
-    intensity: estimateSessionIntensity(sessionSelections),
-    impact: estimateSessionImpact(sessionSelections),
-    equipmentUsed: collectEquipmentUsed(sessionSelections),
+    intensity: estimateSessionIntensity(flattenedSelections),
+    impact: estimateSessionImpact(flattenedSelections),
+    equipmentUsed: collectEquipmentUsed(flattenedSelections),
   };
 
   const diagnostics = {
     candidateCount: filterResult.candidates.length,
     removedByRule: filterResult.removedByRule,
+    estimatedTotalMinutes:
+      Math.round(
+        (flattenedSelections.reduce((total, item) => total + item.prescription.estimatedSeconds, 0) / 60) * 10,
+      ) / 10,
     constraintWarning:
       filterResult.candidates.length < 45
         ? language === "hu"
@@ -77,6 +99,7 @@ export function buildWorkoutSession(
 
   return {
     language,
+    generatedAtIso: new Date().toISOString(),
     title: buildSessionTitle(inputs, language),
     summaryText: buildSessionSummary(inputs, summary.intensity, language),
     totalDuration: inputs.duration,
@@ -110,16 +133,54 @@ function buildBlock(
     .filter((candidate) => candidate.score > 0)
     .sort((left, right) => compareCandidates(left, right, variationSeed));
 
-  const selected = pickTopCandidates(ranked, block, inputs, sessionSelections, language);
+  const selected = pickTopCandidates(ranked, block, inputs, sessionSelections, language, variationSeed);
   const ordered = orderBlockExercises(selected, block.role, inputs);
+  const prescriptions = createBlockPrescriptions(
+    ordered.map((candidate) => candidate.video),
+    block,
+    inputs,
+    language,
+  );
 
   return ordered.map((candidate, index) => ({
     video: candidate.video,
     role: block.role,
-    order: sessionSelections.length + index + 1,
+    order: index + 1,
     score: candidate.score,
     whySelected: candidate.whySelected,
-    prescription: createPrescription(candidate.video, block, inputs, language),
+    prescription: prescriptions[index],
+  }));
+}
+
+function getSelectionOrder(template: BlockTemplate[]): BlockTemplate[] {
+  const priorities: Record<BlockTemplate["role"], number> = {
+    main: 0,
+    accessory: 1,
+    activation: 2,
+    warmup: 3,
+    finisher: 4,
+    cooldown: 5,
+  };
+
+  return [...template].sort((left, right) => priorities[left.role] - priorities[right.role]);
+}
+
+function renumberBlocks(
+  blocks: Array<{
+    role: BlockTemplate["role"];
+    label: string;
+    targetMinutes: number;
+    items: SelectedExercise[];
+  }>,
+) {
+  let order = 1;
+
+  return blocks.map((block) => ({
+    ...block,
+    items: block.items.map((item) => ({
+      ...item,
+      order: order++,
+    })),
   }));
 }
 
@@ -138,11 +199,73 @@ function getRoleScopedCandidates(
   return relaxed.filter((video) => {
     switch (block.role) {
       case "warmup":
-        return video.intensityEstimate !== "high";
+        return (
+          video.intensityEstimate !== "high" &&
+          ["mobility", "recovery", "accessory"].includes(video.movementClass) &&
+          video.variationTier !== "specialist" &&
+          (
+            hasAnyBuilderTag(video, getRelaxedWarmupTags(inputs)) ||
+            (inputs.focusArea === "full_body" && video.primaryPattern === "mobility")
+          )
+        );
       case "activation":
-        return video.primaryPattern !== "cardio_locomotion";
+        return (
+          video.primaryPattern !== "cardio_locomotion" &&
+          ["accessory", "compound"].includes(video.movementClass) &&
+          video.movementClass !== "isolation" &&
+          video.variationTier !== "specialist" &&
+          (
+            video.slotDetails.some((slotDetail) =>
+              ["activation_glute", "activation_core", "activation_scapula"].includes(slotDetail),
+            ) ||
+            video.primaryPattern === "core" ||
+            video.primaryPattern === "balance_stability" ||
+            hasAnyBuilderTag(video, ["activation_upper", "activation_lower", "activation_core", "activation_full"])
+          )
+        );
+      case "main":
+        if (!["compound", "conditioning", "power"].includes(video.movementClass)) {
+          return false;
+        }
+
+        if (
+          inputs.focusArea === "upper_body" &&
+          ["strength", "tone", "general_fitness"].includes(inputs.goal)
+        ) {
+          return ["upper_push", "upper_pull"].includes(video.balanceBucket);
+        }
+
+        if (
+          inputs.focusArea === "full_body" &&
+          !["conditioning", "fat_burn"].includes(inputs.goal) &&
+          video.primaryPattern === "cardio_locomotion"
+        ) {
+          return false;
+        }
+
+        return video.balanceBucket !== "mobility_recovery";
+      case "accessory":
+        if (!["accessory", "isolation", "compound"].includes(video.movementClass)) {
+          return false;
+        }
+
+        if (inputs.focusArea === "upper_body") {
+          return (
+            hasAnyBuilderTag(video, ["accessory_upper", "accessory_core", "strength_core", "anti_rotation"]) ||
+            video.primaryPattern === "core"
+          );
+        }
+
+        return video.balanceBucket !== "mobility_recovery";
       case "cooldown":
-        return video.intensityEstimate === "low";
+        return (
+          video.intensityEstimate === "low" &&
+          ["mobility", "recovery"].includes(video.movementClass) &&
+          (
+            hasAnyBuilderTag(video, getRelaxedCooldownTags(inputs)) ||
+            (inputs.focusArea === "full_body" && video.primaryPattern === "mobility")
+          )
+        );
       case "finisher":
         return !video.advancedRisk && video.impactLevel !== "low";
       default:
@@ -157,35 +280,46 @@ function pickTopCandidates(
   inputs: WorkoutInputs,
   sessionSelections: SelectedExercise[],
   language: AppLanguage,
+  variationSeed: number,
 ): ScoredVideoCandidate[] {
   const picked: ScoredVideoCandidate[] = [];
+  const remaining = [...ranked];
 
-  for (const candidate of ranked) {
+  while (picked.length < block.maxExercises && remaining.length > 0) {
+    const shadowVideos = picked.map((item) => item.video);
+    const shadowPrescriptions = createBlockPrescriptions(shadowVideos, block, inputs, language);
     const shadowSelections = picked.map((item, index) => ({
       video: item.video,
       role: block.role,
       order: sessionSelections.length + index + 1,
       score: item.score,
       whySelected: item.whySelected,
-      prescription: createPrescription(item.video, block, inputs, language),
+      prescription: shadowPrescriptions[index],
     }));
 
-    const rescored = scoreVideo(candidate.video, {
-      role: block.role,
-      inputs,
-      language,
-      sessionSelections,
-      blockSelections: shadowSelections,
-    });
+    const rescoredCandidates = remaining
+      .filter((candidate) => !shouldSkipDuplicateFamily(candidate, picked, block.role))
+      .map((candidate) =>
+        scoreVideo(candidate.video, {
+          role: block.role,
+          inputs,
+          language,
+          sessionSelections,
+          blockSelections: shadowSelections,
+        }),
+      )
+      .filter((candidate) => candidate.score > 0)
+      .sort((left, right) => compareCandidates(left, right, variationSeed));
 
-    if (rescored.score <= 0) {
-      continue;
+    if (rescoredCandidates.length === 0) {
+      break;
     }
 
-    picked.push({ ...candidate, score: rescored.score, whySelected: rescored.whySelected });
-
-    if (picked.length >= block.maxExercises) {
-      break;
+    const next = rescoredCandidates[0];
+    picked.push(next);
+    const nextIndex = remaining.findIndex((candidate) => candidate.video.id === next.video.id);
+    if (nextIndex >= 0) {
+      remaining.splice(nextIndex, 1);
     }
   }
 
@@ -204,6 +338,58 @@ function pickTopCandidates(
   }
 
   return picked;
+}
+
+function hasAnyBuilderTag(video: VideoItem, tags: readonly BuilderTag[]): boolean {
+  return tags.some((tag) => video.builderTags.includes(tag));
+}
+
+function shouldSkipDuplicateFamily(
+  candidate: ScoredVideoCandidate,
+  picked: ScoredVideoCandidate[],
+  role: BlockTemplate["role"],
+): boolean {
+  if (!candidate.video.exerciseFamily && !candidate.video.movementFamilyDetailed) {
+    return false;
+  }
+
+  if (!["warmup", "activation", "cooldown"].includes(role)) {
+    return false;
+  }
+
+  return picked.some(
+    (item) =>
+      item.video.exerciseFamily === candidate.video.exerciseFamily ||
+      item.video.movementFamilyDetailed === candidate.video.movementFamilyDetailed,
+  );
+}
+
+function getRelaxedWarmupTags(inputs: WorkoutInputs): BuilderTag[] {
+  switch (inputs.focusArea) {
+    case "upper_body":
+      return ["prep_upper", "prep_core", "activation_upper", "activation_core", "scapular_control", "mobility_thoracic", "anti_rotation"];
+    case "lower_body":
+      return ["prep_lower", "prep_core", "activation_lower", "activation_core", "mobility_hips"];
+    case "core":
+      return ["prep_core", "activation_core", "anti_rotation"];
+    case "full_body":
+    default:
+      return ["prep_upper", "prep_lower", "prep_core", "prep_full", "activation_full"];
+  }
+}
+
+function getRelaxedCooldownTags(inputs: WorkoutInputs): BuilderTag[] {
+  switch (inputs.focusArea) {
+    case "upper_body":
+      return ["recovery_upper", "recovery_core", "recovery_breathing", "mobility_thoracic"];
+    case "lower_body":
+      return ["recovery_lower", "recovery_core", "recovery_breathing", "mobility_hips"];
+    case "core":
+      return ["recovery_core", "recovery_breathing"];
+    case "full_body":
+    default:
+      return ["recovery_upper", "recovery_lower", "recovery_core", "recovery_breathing"];
+  }
 }
 
 function compareCandidates(

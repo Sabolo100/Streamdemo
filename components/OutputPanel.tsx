@@ -2,6 +2,7 @@ import SessionBlock from "@/components/SessionBlock";
 import SummaryCard from "@/components/SummaryCard";
 import {
   formatDurationLocalized,
+  formatGeneratedAtLocalized,
   getFocusLabel,
   getIntensityLabel,
   getLevelLabel,
@@ -13,7 +14,8 @@ import type { AppLanguage, GeneratedSession } from "@/types/workout";
 
 interface OutputPanelProps {
   language: AppLanguage;
-  session: GeneratedSession;
+  session: GeneratedSession | null;
+  showBodyFocus: boolean;
   showReasons: boolean;
   onToggleReasons: () => void;
   onExcludeExercise: (id: number) => void;
@@ -24,6 +26,7 @@ interface OutputPanelProps {
 export default function OutputPanel({
   language,
   session,
+  showBodyFocus,
   showReasons,
   onToggleReasons,
   onExcludeExercise,
@@ -31,6 +34,23 @@ export default function OutputPanel({
   copyState,
 }: OutputPanelProps) {
   const copy = getUiCopy(language);
+  let elapsedBeforeBlockSeconds = 0;
+
+  if (!session) {
+    return (
+      <section className="glass-panel p-4 lg:p-5">
+        <div className="rounded-[28px] border border-dashed border-[rgba(23,33,30,0.16)] bg-[rgba(255,255,255,0.56)] p-8 text-center">
+          <p className="section-kicker">{copy.generatedSession}</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#17211e]">
+            {copy.noSessionTitle}
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-[#5a655f]">
+            {copy.noSessionDescription}
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="glass-panel p-4 lg:p-5">
@@ -43,6 +63,9 @@ export default function OutputPanel({
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-[#5a655f]">
               {session.summaryText}
+            </p>
+            <p className="mt-2 text-sm font-semibold text-[#5a655f]">
+              {copy.generatedAt}: {formatGeneratedAtLocalized(language, session.generatedAtIso)}
             </p>
           </div>
 
@@ -107,15 +130,25 @@ export default function OutputPanel({
       </div>
 
       <div className="mt-4 grid gap-4">
-        {session.blocks.map((block) => (
-          <SessionBlock
-            block={block}
-            key={`${block.role}-${block.targetMinutes}`}
-            language={language}
-            onExcludeExercise={onExcludeExercise}
-            showReason={showReasons}
-          />
-        ))}
+        {session.blocks.map((block) => {
+          const startingElapsedSeconds = elapsedBeforeBlockSeconds;
+          elapsedBeforeBlockSeconds += block.items.reduce(
+            (total, item) => total + item.prescription.estimatedSeconds,
+            0,
+          );
+
+          return (
+            <SessionBlock
+              block={block}
+              key={`${block.role}-${block.targetMinutes}`}
+              language={language}
+              onExcludeExercise={onExcludeExercise}
+              showBodyFocus={showBodyFocus}
+              showReason={showReasons}
+              startingElapsedSeconds={startingElapsedSeconds}
+            />
+          );
+        })}
       </div>
     </section>
   );

@@ -39,8 +39,11 @@ interface InputPanelProps {
   onGenerate: () => void;
   onRegenerate: () => void;
   onClearExclusions: () => void;
+  onToggleBodyFocus: () => void;
   isGenerating: boolean;
   excludedCount: number;
+  hasSession: boolean;
+  showBodyFocus: boolean;
 }
 
 export default function InputPanel({
@@ -51,8 +54,11 @@ export default function InputPanel({
   onGenerate,
   onRegenerate,
   onClearExclusions,
+  onToggleBodyFocus,
   isGenerating,
   excludedCount,
+  hasSession,
+  showBodyFocus,
 }: InputPanelProps) {
   const copy = getUiCopy(language);
 
@@ -230,31 +236,55 @@ export default function InputPanel({
           }))}
         />
 
-        <label className="flex items-center justify-between rounded-[18px] border border-[rgba(23,33,30,0.08)] bg-white/65 px-4 py-3 xl:col-span-2">
-          <div>
-            <p className="text-sm font-semibold text-[#17211e]">{copy.simpleMode}</p>
-            <p className="mt-1 text-sm text-[#5a655f]">{copy.simpleModeHelper}</p>
-          </div>
+        <div className="grid gap-4 xl:col-span-2 lg:grid-cols-2">
+          <label className="flex items-center justify-between rounded-[18px] border border-[rgba(23,33,30,0.08)] bg-white/65 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-[#17211e]">{copy.simpleMode}</p>
+              <p className="mt-1 text-sm text-[#5a655f]">{copy.simpleModeHelper}</p>
+            </div>
 
-          <button
-            className={`relative h-8 w-14 rounded-full transition ${
-              inputs.simpleMode ? "bg-[#17211e]" : "bg-[#d8d2c6]"
-            }`}
-            onClick={() => setField("simpleMode", !inputs.simpleMode)}
-            type="button"
-          >
-            <span
-              className={`absolute top-1 h-6 w-6 rounded-full bg-white transition ${
-                inputs.simpleMode ? "left-7" : "left-1"
+            <button
+              className={`relative h-8 w-14 rounded-full transition ${
+                inputs.simpleMode ? "bg-[#17211e]" : "bg-[#d8d2c6]"
               }`}
-            />
-          </button>
-        </label>
+              onClick={() => setField("simpleMode", !inputs.simpleMode)}
+              type="button"
+            >
+              <span
+                className={`absolute top-1 h-6 w-6 rounded-full bg-white transition ${
+                  inputs.simpleMode ? "left-7" : "left-1"
+                }`}
+              />
+            </button>
+          </label>
+
+          <label className="flex items-center justify-between rounded-[18px] border border-[rgba(23,33,30,0.08)] bg-white/65 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-[#17211e]">{copy.bodyFocusCard}</p>
+              <p className="mt-1 text-sm text-[#5a655f]">{copy.bodyFocusCardHelper}</p>
+            </div>
+
+            <button
+              className={`relative h-8 w-14 rounded-full transition ${
+                showBodyFocus ? "bg-[#17211e]" : "bg-[#d8d2c6]"
+              }`}
+              onClick={onToggleBodyFocus}
+              type="button"
+            >
+              <span
+                className={`absolute top-1 h-6 w-6 rounded-full bg-white transition ${
+                  showBodyFocus ? "left-7" : "left-1"
+                }`}
+              />
+            </button>
+          </label>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:flex-wrap">
         <button
-          className="rounded-[18px] bg-[#17211e] px-4 py-4 text-sm font-semibold text-white transition hover:bg-[#23322f] lg:min-w-[220px]"
+          className="rounded-[18px] bg-[#17211e] px-4 py-4 text-sm font-semibold text-white transition hover:bg-[#23322f] disabled:cursor-wait disabled:opacity-70 lg:min-w-[220px]"
+          disabled={isGenerating}
           onClick={onGenerate}
           type="button"
         >
@@ -262,7 +292,8 @@ export default function InputPanel({
         </button>
 
         <button
-          className="rounded-[18px] border border-[rgba(23,33,30,0.12)] bg-white/70 px-4 py-4 text-sm font-semibold text-[#17211e] transition hover:bg-white lg:min-w-[220px]"
+          className="rounded-[18px] border border-[rgba(23,33,30,0.12)] bg-white/70 px-4 py-4 text-sm font-semibold text-[#17211e] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 lg:min-w-[220px]"
+          disabled={isGenerating || !hasSession}
           onClick={onRegenerate}
           type="button"
         >
