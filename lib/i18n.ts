@@ -27,6 +27,7 @@ interface UiCopy {
   heroDescription: string;
   videosLoaded: (count: number) => string;
   futureReadyRepo: string;
+  rulesPageLink: string;
   language: string;
   inputs: string;
   sessionSetup: string;
@@ -319,6 +320,7 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
       "One-screen session builder for safe, home-appropriate workouts. The left panel captures intent and constraints, while the right panel assembles a structured session block by block.",
     videosLoaded: (count) => `${count} normalized videos loaded`,
     futureReadyRepo: "Future-ready local repository layer for Supabase swap",
+    rulesPageLink: "Builder rules",
     language: "Language",
     inputs: "Inputs",
     sessionSetup: "Session setup",
@@ -374,6 +376,7 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
       "Egyk\u00e9perny\u0151s session builder biztons\u00e1gos, otthon is v\u00e9gezhet\u0151 edz\u00e9sekhez. Bal oldalon az ig\u00e9nyek \u00e9s korl\u00e1tok, jobb oldalon a struktur\u00e1lt edz\u00e9sblokk jelenik meg.",
     videosLoaded: (count) => `${count} normaliz\u00e1lt vide\u00f3 bet\u00f6ltve`,
     futureReadyRepo: "Supabase-re k\u00e9s\u0151bb k\u00f6nnyen cser\u00e9lhet\u0151 adatt\u00e1r r\u00e9teg",
+    rulesPageLink: "M\u0171k\u00f6d\u00e9si szab\u00e1lyok",
     language: "Nyelv",
     inputs: "Bemenetek",
     sessionSetup: "Session be\u00e1ll\u00edt\u00e1s",
@@ -424,7 +427,7 @@ const UI_COPY: Record<AppLanguage, UiCopy> = {
 };
 
 export const LANGUAGE_OPTIONS: AppLanguage[] = ["en", "hu"];
-export const DEFAULT_LANGUAGE: AppLanguage = "en";
+export const DEFAULT_LANGUAGE: AppLanguage = "hu";
 
 export function getUiCopy(language: AppLanguage): UiCopy {
   return UI_COPY[language];

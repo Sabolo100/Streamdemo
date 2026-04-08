@@ -150,6 +150,9 @@ export default function WorkoutBuilderApp({ videos }: WorkoutBuilderAppProps) {
             <div className="flex flex-wrap gap-3">
               <span className="status-pill">{copy.videosLoaded(videos.length)}</span>
               <span className="chip">{copy.futureReadyRepo}</span>
+              <a className="chip font-semibold text-[var(--accent-strong)]" href="/szabalyok">
+                {copy.rulesPageLink}
+              </a>
             </div>
           </div>
         </div>
